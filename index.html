@@ -3,391 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DISTORTION HUNTER | 街の歪みをさがせ！</title>
-    
-    <!-- PyScript -->
+    <title>DISTORTION HUNTER</title>
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
-
-    <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-    <!-- Icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
-        :root {
-            --bg: #050505;
-            --panel: #111;
-            --main: #00ff41;
-            --warn: #ff0055;
-            --accent: #d600ff;
-            --link: #00bfff;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--main);
-            font-family: 'DotGothic16', sans-serif;
-            margin: 0;
-            padding: 15px;
-            overflow-x: hidden;
-            line-height: 1.5;
-        }
-
-        /* --- Branding Header --- */
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .logo-text {
-            font-size: 2.5rem;
-            text-shadow: 3px 3px var(--warn);
-            letter-spacing: 2px;
-            margin: 0;
-            line-height: 1;
-        }
-        .alliance-badge {
-            font-size: 0.7rem;
-            background: #333;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            vertical-align: middle;
-            margin-left: 5px;
-        }
-
-        .subtitle {
-            color: #888;
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
-
-        /* --- Scanner Box --- */
-        .scanner-box {
-            max-width: 500px;
-            margin: 0 auto;
-            background: var(--panel);
-            border: 2px solid #333;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
-        }
-
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
-        
-        input {
-            width: 100%;
-            padding: 12px;
-            background: #000;
-            border: 1px solid #444;
-            color: white;
-            font-family: inherit;
-            font-size: 1.1rem;
-            border-radius: 6px;
-            box-sizing: border-box;
-            outline: none;
-        }
-        input:focus { border-color: var(--main); box-shadow: 0 0 10px var(--main); }
-
-        /* --- Suggestion Chips --- */
-        #suggestion-area {
-            display: none; /* JSで表示 */
-            margin-top: -10px;
-            margin-bottom: 20px;
-            background: #1a1a1a;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px dashed #555;
-        }
-        .suggest-title { font-size: 0.8rem; color: var(--link); margin-bottom: 5px; }
-        .chip-container { display: flex; gap: 8px; flex-wrap: wrap; }
-        .search-chip {
-            background: #333;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            text-decoration: none;
-            font-size: 0.8rem;
-            border: 1px solid #555;
-            transition: 0.2s;
-        }
-        .search-chip:hover { background: var(--link); color: black; border-color: var(--link); }
-
-        /* --- Buttons --- */
-        .btn-scan {
-            width: 100%;
-            padding: 15px;
-            background: var(--main);
-            color: black;
-            font-family: inherit;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 10px;
-            text-transform: uppercase;
-        }
-        .btn-scan:active { transform: scale(0.98); }
-
-        /* --- Result Area --- */
-        #result-area {
-            display: none;
-            margin-top: 30px;
-            border: 2px solid var(--accent);
-            background: #000;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px;
-            animation: glitch-anim 0.3s;
-            position: relative;
-        }
-        .ss-hint {
-            position: absolute;
-            top: -10px;
-            right: 10px;
-            background: var(--panel);
-            color: #fff;
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border: 1px solid #555;
-            border-radius: 4px;
-        }
-        .distortion-val {
-            font-size: 3.5rem;
-            font-weight: bold;
-            margin: 10px 0;
-            text-shadow: 0 0 15px currentColor;
-            line-height: 1;
-        }
-        .level-safe { color: gold; }
-        .level-warn { color: orange; }
-        .level-danger { color: var(--warn); text-shadow: 2px 2px white; }
-
-        .comment { font-size: 1.2rem; color: white; margin-bottom: 5px; }
-        .target-name { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
-
-        /* Share Hub */
-        .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;}
-        .btn-share {
-            display: flex; align-items: center; justify-content: center;
-            padding: 10px; color: white; border-radius: 8px;
-            text-decoration: none; font-weight: bold; font-size: 0.9rem;
-            border: none; cursor: pointer; background: #333;
-        }
-        .btn-x { background: #000; border: 1px solid #fff; }
-        .btn-line { background: #06c755; }
-
-        /* --- Tutorial Section --- */
-        .tutorial-box {
-            max-width: 500px;
-            margin: 30px auto;
-            border-top: 1px solid #333;
-            padding-top: 20px;
-        }
-        .tut-title { font-size: 1.2rem; color: white; margin-bottom: 10px; border-left: 4px solid var(--main); padding-left: 10px; }
-        .step { margin-bottom: 15px; background: #111; padding: 10px; border-radius: 8px; }
-        .step-num { color: var(--accent); font-weight: bold; }
-
-        /* --- Footer --- */
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-bottom: 20px;
-            color: #555;
-            font-size: 0.8rem;
-        }
-        .footer-link { color: #888; text-decoration: none; margin: 0 10px; }
-        .footer-link:hover { color: var(--main); }
-
-        @keyframes glitch-anim {
-            0% { opacity: 0; transform: translateX(-5px); }
-            50% { opacity: 1; transform: translateX(5px); }
-            100% { transform: translateX(0); }
-        }
+        :root{--bg:#050505;--main:#00ff41;--warn:#ff0055;--accent:#d600ff;}
+        body{background:var(--bg);color:var(--main);font-family:'DotGothic16',sans-serif;margin:0;padding:15px;line-height:1.5;}
+        h1{text-align:center;font-size:2.5rem;text-shadow:3px 3px var(--warn);margin:0;}
+        .box{max-width:500px;margin:20px auto;background:#111;border:2px solid #333;border-radius:12px;padding:20px;}
+        input{width:100%;padding:12px;background:#000;border:1px solid #444;color:white;font-family:inherit;font-size:1.1rem;box-sizing:border-box;margin-bottom:15px;}
+        .btn-scan{width:100%;padding:15px;background:var(--main);color:black;font-size:1.5rem;font-weight:bold;border:none;cursor:pointer;}
+        #result{display:none;margin-top:30px;border:2px solid var(--accent);background:#000;padding:20px;text-align:center;}
+        .val{font-size:3.5rem;font-weight:bold;text-shadow:0 0 15px currentColor;line-height:1;}
+        .safe{color:gold;} .scam{color:var(--warn);}
+        .share-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;}
+        .btn-share{display:flex;align-items:center;justify-content:center;padding:10px;color:white;border-radius:8px;text-decoration:none;font-weight:bold;border:none;cursor:pointer;background:#333;}
+        #suggest{display:none;margin-bottom:20px;} .chip{background:#333;color:white;padding:5px 10px;border-radius:15px;text-decoration:none;font-size:0.8rem;margin-right:5px;}
     </style>
 </head>
 <body>
-
-    <header>
-        <h1 class="logo-text">DISTORTION<br>HUNTER</h1>
-        <div class="subtitle">▼ 街のバグ（無駄遣い）をスキャンせよ ▼</div>
-    </header>
-
-    <div class="scanner-box">
-        <!-- Input: City with Auto-Suggest -->
-        <div class="input-group">
-            <label>📍 地名 (City)</label>
-            <input type="text" id="city" placeholder="例: 柏市" py-keyup="update_suggestions">
-        </div>
-
-        <!-- Suggestion Area (Dynamic) -->
-        <div id="suggestion-area">
-            <div class="suggest-title">💡 ネタを探す (Tap to Search)</div>
-            <div class="chip-container" id="chip-box">
-                <!-- Python will inject buttons here -->
-            </div>
-        </div>
-
-        <div class="input-group">
-            <label>🏗️ 対象 (Target)</label>
-            <input type="text" id="target" placeholder="例: 駅前の謎オブジェ">
-        </div>
-        <div class="input-group">
-            <label>💸 税金 (Budget/円)</label>
-            <input type="number" id="budget" placeholder="例: 50000000">
-        </div>
-        <div class="input-group">
-            <label>👥 利用者 (User/人)</label>
-            <input type="number" id="users" placeholder="例: 3">
-        </div>
-
-        <button class="btn-scan" py-click="scan_distortion">🔍 SCAN NOW</button>
-
-        <!-- Result Card -->
-        <div id="result-area">
-            <div class="ss-hint">📸 スクショ用</div>
-            <div style="font-size:0.8rem; color:#888;">DISTORTION LEVEL</div>
-            <div id="d-score" class="distortion-val">0.0</div>
-            <div id="d-rank" class="comment">計測中...</div>
-            <div id="d-target" class="target-name">@UNKNOWN</div>
-            
+    <header><h1>DISTORTION<br>HUNTER</h1><div style="text-align:center;color:#888;">▼ 街のバグ（無駄遣い）をスキャンせよ ▼</div></header>
+    <div class="box">
+        <label>📍 地名</label><input type="text" id="city" placeholder="例: 柏市" py-keyup="upd_sug">
+        <div id="suggest"><div id="chips"></div></div>
+        <label>🏗️ 対象</label><input type="text" id="target" placeholder="例: 謎のオブジェ">
+        <label>💸 税金(円)</label><input type="number" id="budget" placeholder="50000000">
+        <label>👥 利用者(人)</label><input type="number" id="users" placeholder="3">
+        <button class="btn-scan" py-click="scan">🔍 SCAN NOW</button>
+        <div id="result">
+            <div style="font-size:0.8rem;color:#888;">DISTORTION LEVEL</div>
+            <div id="d-score" class="val">0.0</div><div id="d-rank">...</div>
             <div class="share-grid">
-                <a id="link-x" href="#" target="_blank" class="btn-share btn-x">𝕏 Post</a>
-                <a id="link-line" href="#" target="_blank" class="btn-share btn-line">LINE</a>
+                <a id="lnk-x" href="#" target="_blank" class="btn-share" style="border:1px solid #fff;">𝕏 Post</a>
+                <a id="lnk-line" href="#" target="_blank" class="btn-share" style="background:#06c755;">LINE</a>
             </div>
         </div>
     </div>
-
-    <!-- Tutorial -->
-    <div class="tutorial-box">
-        <div class="tut-title">🔰 攻略ガイド (How to Play)</div>
-        
-        <div class="step">
-            <span class="step-num">STEP 1: 敵を見つける</span><br>
-            地名を入力すると検索ヒントが出るぞ。ニュースで「〇〇市 建設費」などを検索して、高そうな建物を見つけよう。
-        </div>
-        
-        <div class="step">
-            <span class="step-num">STEP 2: 入力する</span><br>
-            ニュースに書いてある「総工費（税金）」と、普段見かける「利用者の数（実感でOK）」を入力しよう。
-        </div>
-        
-        <div class="step">
-            <span class="step-num">STEP 3: 拡散する</span><br>
-            「SCAM（詐欺）」判定が出たらスクショしてインスタやTikTokに晒そう。ハッシュタグ <b>#街の歪みをさがせ</b> を忘れずに。
-        </div>
-    </div>
-
-    <!-- Branding Footer -->
-    <footer>
-        <div style="margin-bottom: 10px;">
-            <i class="fas fa-project-diagram"></i> Powered by <strong>SBCM Alliance</strong>
-        </div>
-        <a href="https://github.com/SBCM-Alliance" target="_blank" class="footer-link">
-            <i class="fab fa-github"></i> GitHub
-        </a>
-        <a href="https://doi.org/10.5281/zenodo.17762960" target="_blank" class="footer-link">
-            <i class="fas fa-book"></i> Theory (Zenodo)
-        </a>
-        <br><br>
-        <small>© 2025 Algorithmic Public Interestism.</small>
-    </footer>
-
-    <!-- Python Logic -->
+    <footer style="text-align:center;margin-top:40px;color:#555;font-size:0.8rem;">Powered by SBCM Alliance</footer>
     <script type="py">
         from pyscript import document
         import urllib.parse
-
-        def update_suggestions(event):
-            city = document.getElementById("city").value
-            area = document.getElementById("suggestion-area")
-            box = document.getElementById("chip-box")
-
-            if len(city) < 2:
-                area.style.display = "none"
-                return
-
-            area.style.display = "block"
-            
-            # Google News Search Link
-            g_query = urllib.parse.quote(f"{city} 予算 建設費")
-            g_url = f"https://www.google.com/search?q={g_query}&tbm=nws"
-            
-            # Twitter Search Link
-            t_query = urllib.parse.quote(f"{city} 税金 無駄")
-            t_url = f"https://twitter.com/search?q={t_query}"
-
-            # General Search
-            w_query = urllib.parse.quote(f"{city} ハコモノ")
-            w_url = f"https://www.google.com/search?q={w_query}"
-
-            # Create Buttons HTML
-            html = f"""
-                <a href="{g_url}" target="_blank" class="search-chip">📰 ニュースで予算を探す</a>
-                <a href="{t_url}" target="_blank" class="search-chip">🐦 Xで噂を探す</a>
-                <a href="{w_url}" target="_blank" class="search-chip">🔍 ハコモノ検索</a>
-            """
-            box.innerHTML = html
-
-        def scan_distortion(event):
-            # Inputs
-            city = document.getElementById("city").value
-            target = document.getElementById("target").value
-            budget_str = document.getElementById("budget").value
-            users_str = document.getElementById("users").value
-
-            if not city or not target or not budget_str or not users_str:
-                document.getElementById("result-area").style.display = "block"
-                document.getElementById("d-rank").innerText = "⚠️ 数字を入れてね"
-                return
-
-            try:
-                budget = float(budget_str)
-                users = float(users_str)
-                if users == 0: users = 1
-            except:
-                return
-
-            # SBCM Logic
-            i_cov = users / 72000
-            i_bud = budget / 30000000
-            d_index = i_bud / i_cov
-            
-            # Formatting
-            score_disp = f"{d_index:.1f}"
-            if d_index < 1.0:
-                rank = "✨ 神運営"
-                style = "level-safe"
-            elif d_index < 50.0:
-                rank = "⚠️ 歪み (無駄)"
-                style = "level-warn"
-            else:
-                rank = "🚨 SCAM (詐欺)"
-                style = "level-danger"
-
-            # UI Update
-            document.getElementById("result-area").style.display = "block"
-            
-            score_el = document.getElementById("d-score")
-            score_el.innerText = score_disp
-            score_el.className = f"distortion-val {style}"
-            
-            document.getElementById("d-rank").innerText = rank
-            document.getElementById("d-target").innerText = f"📍 {city} : {target}"
-
-            # Update Share Links
-            hashtags = f"{city},街の歪みをさがせ"
-            base_text = f"【歪み検知】\n📍 {city}「{target}」\n\n⚠️ 歪み指数: {score_disp}\n判定: {rank}\n\n#SBCM #DistortionHunter"
-            
-            enc_text = urllib.parse.quote(base_text)
-            enc_tags = urllib.parse.quote(hashtags)
-            document.getElementById("link-x").href = f"https://twitter.com/intent/tweet?text={enc_text}&hashtags={enc_tags}"
-            
-            line_text = urllib.parse.quote(f"{base_text}\n#街の歪みをさがせ")
-            document.getElementById("link-line").href = f"https://line.me/R/msg/text/?{line_text}"
-
+        def upd_sug(e):
+            c=document.getElementById("city").value; d=document.getElementById("suggest")
+            if len(c)<2: d.style.display="none"; return
+            d.style.display="block"; q=urllib.parse.quote
+            document.getElementById("chips").innerHTML=f'<a href="https://www.google.com/search?q={q(c+" 予算")}&tbm=nws" target="_blank" class="chip">📰 ニュース検索</a>'
+        def scan(e):
+            try: b=float(document.getElementById("budget").value); u=float(document.getElementById("users").value)
+            except: return
+            if u==0: u=1
+            d=b/30000000/(u/72000); s=f"{d:.1f}"; r="✨ 神運営" if d<1 else "🚨 SCAM"
+            el=document.getElementById("d-score"); el.innerText=s; el.className=f"val {'safe' if d<1 else 'scam'}"
+            document.getElementById("d-rank").innerText=r; document.getElementById("result").style.display="block"
+            txt=urllib.parse.quote(f"【歪み検知】{document.getElementById('city').value}「{document.getElementById('target').value}」\n⚠️ 歪み指数: {s}\n判定: {r}\n#街の歪みをさがせ")
+            document.getElementById("lnk-x").href=f"https://twitter.com/intent/tweet?text={txt}"; document.getElementById("lnk-line").href=f"https://line.me/R/msg/text/?{txt}"
     </script>
 </body>
-            </html>
+</html>
