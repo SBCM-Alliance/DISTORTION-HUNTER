@@ -11,6 +11,8 @@
 
     <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <!-- Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
         :root {
@@ -18,8 +20,8 @@
             --panel: #111;
             --main: #00ff41;
             --warn: #ff0055;
-            --line: #06c755;
             --accent: #d600ff;
+            --link: #00bfff;
         }
 
         body {
@@ -29,24 +31,38 @@
             margin: 0;
             padding: 15px;
             overflow-x: hidden;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
-        h1 {
+        /* --- Branding Header --- */
+        header {
             text-align: center;
-            font-size: 2rem;
-            text-shadow: 2px 2px var(--warn);
-            margin: 10px 0 5px 0;
+            margin-bottom: 20px;
+        }
+        .logo-text {
+            font-size: 2.5rem;
+            text-shadow: 3px 3px var(--warn);
             letter-spacing: 2px;
+            margin: 0;
+            line-height: 1;
+        }
+        .alliance-badge {
+            font-size: 0.7rem;
+            background: #333;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-left: 5px;
         }
 
         .subtitle {
-            text-align: center;
             color: #888;
-            font-size: 0.8rem;
-            margin-bottom: 20px;
+            font-size: 0.9rem;
+            margin-top: 5px;
         }
 
+        /* --- Scanner Box --- */
         .scanner-box {
             max-width: 500px;
             margin: 0 auto;
@@ -74,6 +90,31 @@
         }
         input:focus { border-color: var(--main); box-shadow: 0 0 10px var(--main); }
 
+        /* --- Suggestion Chips --- */
+        #suggestion-area {
+            display: none; /* JSで表示 */
+            margin-top: -10px;
+            margin-bottom: 20px;
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px dashed #555;
+        }
+        .suggest-title { font-size: 0.8rem; color: var(--link); margin-bottom: 5px; }
+        .chip-container { display: flex; gap: 8px; flex-wrap: wrap; }
+        .search-chip {
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            border: 1px solid #555;
+            transition: 0.2s;
+        }
+        .search-chip:hover { background: var(--link); color: black; border-color: var(--link); }
+
+        /* --- Buttons --- */
         .btn-scan {
             width: 100%;
             padding: 15px;
@@ -90,7 +131,7 @@
         }
         .btn-scan:active { transform: scale(0.98); }
 
-        /* Result Card (For Screenshot) */
+        /* --- Result Area --- */
         #result-area {
             display: none;
             margin-top: 30px;
@@ -99,12 +140,9 @@
             padding: 20px;
             text-align: center;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(214, 0, 255, 0.2);
             animation: glitch-anim 0.3s;
             position: relative;
         }
-
-        /* 📸 Camera Icon overlay for UI hint */
         .ss-hint {
             position: absolute;
             top: -10px;
@@ -116,7 +154,6 @@
             border: 1px solid #555;
             border-radius: 4px;
         }
-
         .distortion-val {
             font-size: 3.5rem;
             font-weight: bold;
@@ -124,7 +161,6 @@
             text-shadow: 0 0 15px currentColor;
             line-height: 1;
         }
-        
         .level-safe { color: gold; }
         .level-warn { color: orange; }
         .level-danger { color: var(--warn); text-shadow: 2px 2px white; }
@@ -133,85 +169,69 @@
         .target-name { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
 
         /* Share Hub */
-        .share-label {
+        .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;}
+        .btn-share {
+            display: flex; align-items: center; justify-content: center;
+            padding: 10px; color: white; border-radius: 8px;
+            text-decoration: none; font-weight: bold; font-size: 0.9rem;
+            border: none; cursor: pointer; background: #333;
+        }
+        .btn-x { background: #000; border: 1px solid #fff; }
+        .btn-line { background: #06c755; }
+
+        /* --- Tutorial Section --- */
+        .tutorial-box {
+            max-width: 500px;
+            margin: 30px auto;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+        .tut-title { font-size: 1.2rem; color: white; margin-bottom: 10px; border-left: 4px solid var(--main); padding-left: 10px; }
+        .step { margin-bottom: 15px; background: #111; padding: 10px; border-radius: 8px; }
+        .step-num { color: var(--accent); font-weight: bold; }
+
+        /* --- Footer --- */
+        footer {
             text-align: center;
-            margin: 20px 0 10px 0;
-            color: #888;
+            margin-top: 40px;
+            padding-bottom: 20px;
+            color: #555;
             font-size: 0.8rem;
         }
-
-        .share-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .btn-share {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-            color: white;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border: none;
-            transition: opacity 0.2s;
-        }
-        .btn-share:hover { opacity: 0.8; }
-
-        .btn-x { background: #000; border: 1px solid #fff; }
-        .btn-line { background: var(--line); color: white; }
-        
-        .btn-copy { 
-            grid-column: span 2; 
-            background: #333; 
-            border: 1px solid #555;
-            color: #ccc;
-        }
+        .footer-link { color: #888; text-decoration: none; margin: 0 10px; }
+        .footer-link:hover { color: var(--main); }
 
         @keyframes glitch-anim {
             0% { opacity: 0; transform: translateX(-5px); }
             50% { opacity: 1; transform: translateX(5px); }
             100% { transform: translateX(0); }
         }
-        
-        /* Toast Notification */
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 2px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            font-size: 17px;
-            border: 1px solid var(--main);
-        }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
 
-    <h1>DISTORTION<br>HUNTER</h1>
-    <div class="subtitle">▼ ウチの街、バグってね？ ▼</div>
+    <header>
+        <h1 class="logo-text">DISTORTION<br>HUNTER</h1>
+        <div class="subtitle">▼ 街のバグ（無駄遣い）をスキャンせよ ▼</div>
+    </header>
 
     <div class="scanner-box">
+        <!-- Input: City with Auto-Suggest -->
         <div class="input-group">
             <label>📍 地名 (City)</label>
-            <input type="text" id="city" placeholder="例: 〇〇市">
+            <input type="text" id="city" placeholder="例: 柏市" py-keyup="update_suggestions">
         </div>
+
+        <!-- Suggestion Area (Dynamic) -->
+        <div id="suggestion-area">
+            <div class="suggest-title">💡 ネタを探す (Tap to Search)</div>
+            <div class="chip-container" id="chip-box">
+                <!-- Python will inject buttons here -->
+            </div>
+        </div>
+
         <div class="input-group">
-            <label>🏗️ 対象 (Object)</label>
+            <label>🏗️ 対象 (Target)</label>
             <input type="text" id="target" placeholder="例: 駅前の謎オブジェ">
         </div>
         <div class="input-group">
@@ -232,39 +252,87 @@
             <div id="d-score" class="distortion-val">0.0</div>
             <div id="d-rank" class="comment">計測中...</div>
             <div id="d-target" class="target-name">@UNKNOWN</div>
-        </div>
-
-        <!-- Share Hub -->
-        <div id="share-area" style="display:none;">
-            <div class="share-label">▼ 結果を拡散 (Diffuse) ▼</div>
+            
             <div class="share-grid">
-                <!-- X (Twitter) -->
-                <a id="link-x" href="#" target="_blank" class="btn-share btn-x">𝕏 ポスト</a>
-                <!-- LINE -->
-                <a id="link-line" href="#" target="_blank" class="btn-share btn-line">LINEで送る</a>
-                <!-- Universal Copy -->
-                <button id="btn-copy" class="btn-share btn-copy" py-click="copy_result">
-                    📋 全文コピー (Insta/TikTok用)
-                </button>
+                <a id="link-x" href="#" target="_blank" class="btn-share btn-x">𝕏 Post</a>
+                <a id="link-line" href="#" target="_blank" class="btn-share btn-line">LINE</a>
             </div>
         </div>
     </div>
 
-    <div id="toast">Copied to Clipboard!</div>
+    <!-- Tutorial -->
+    <div class="tutorial-box">
+        <div class="tut-title">🔰 攻略ガイド (How to Play)</div>
+        
+        <div class="step">
+            <span class="step-num">STEP 1: 敵を見つける</span><br>
+            地名を入力すると検索ヒントが出るぞ。ニュースで「〇〇市 建設費」などを検索して、高そうな建物を見つけよう。
+        </div>
+        
+        <div class="step">
+            <span class="step-num">STEP 2: 入力する</span><br>
+            ニュースに書いてある「総工費（税金）」と、普段見かける「利用者の数（実感でOK）」を入力しよう。
+        </div>
+        
+        <div class="step">
+            <span class="step-num">STEP 3: 拡散する</span><br>
+            「SCAM（詐欺）」判定が出たらスクショしてインスタやTikTokに晒そう。ハッシュタグ <b>#街の歪みをさがせ</b> を忘れずに。
+        </div>
+    </div>
+
+    <!-- Branding Footer -->
+    <footer>
+        <div style="margin-bottom: 10px;">
+            <i class="fas fa-project-diagram"></i> Powered by <strong>SBCM Alliance</strong>
+        </div>
+        <a href="https://github.com/SBCM-Alliance" target="_blank" class="footer-link">
+            <i class="fab fa-github"></i> GitHub
+        </a>
+        <a href="https://doi.org/10.5281/zenodo.17762960" target="_blank" class="footer-link">
+            <i class="fas fa-book"></i> Theory (Zenodo)
+        </a>
+        <br><br>
+        <small>© 2025 Algorithmic Public Interestism.</small>
+    </footer>
 
     <!-- Python Logic -->
     <script type="py">
         from pyscript import document
         import urllib.parse
-        import js
 
-        # Global storage for result text
-        share_text_body = ""
+        def update_suggestions(event):
+            city = document.getElementById("city").value
+            area = document.getElementById("suggestion-area")
+            box = document.getElementById("chip-box")
+
+            if len(city) < 2:
+                area.style.display = "none"
+                return
+
+            area.style.display = "block"
+            
+            # Google News Search Link
+            g_query = urllib.parse.quote(f"{city} 予算 建設費")
+            g_url = f"https://www.google.com/search?q={g_query}&tbm=nws"
+            
+            # Twitter Search Link
+            t_query = urllib.parse.quote(f"{city} 税金 無駄")
+            t_url = f"https://twitter.com/search?q={t_query}"
+
+            # General Search
+            w_query = urllib.parse.quote(f"{city} ハコモノ")
+            w_url = f"https://www.google.com/search?q={w_query}"
+
+            # Create Buttons HTML
+            html = f"""
+                <a href="{g_url}" target="_blank" class="search-chip">📰 ニュースで予算を探す</a>
+                <a href="{t_url}" target="_blank" class="search-chip">🐦 Xで噂を探す</a>
+                <a href="{w_url}" target="_blank" class="search-chip">🔍 ハコモノ検索</a>
+            """
+            box.innerHTML = html
 
         def scan_distortion(event):
-            global share_text_body
-            
-            # 1. Inputs
+            # Inputs
             city = document.getElementById("city").value
             target = document.getElementById("target").value
             budget_str = document.getElementById("budget").value
@@ -272,33 +340,35 @@
 
             if not city or not target or not budget_str or not users_str:
                 document.getElementById("result-area").style.display = "block"
-                document.getElementById("d-rank").innerText = "⚠️ 入力不足"
+                document.getElementById("d-rank").innerText = "⚠️ 数字を入れてね"
                 return
 
-            budget = float(budget_str)
-            users = float(users_str)
-            if users == 0: users = 1
+            try:
+                budget = float(budget_str)
+                users = float(users_str)
+                if users == 0: users = 1
+            except:
+                return
 
-            # 2. Logic
+            # SBCM Logic
             i_cov = users / 72000
             i_bud = budget / 30000000
             d_index = i_bud / i_cov
             
-            # 3. Rank
+            # Formatting
             score_disp = f"{d_index:.1f}"
             if d_index < 1.0:
                 rank = "✨ 神運営"
                 style = "level-safe"
             elif d_index < 50.0:
-                rank = "⚠️ 歪み"
+                rank = "⚠️ 歪み (無駄)"
                 style = "level-warn"
             else:
                 rank = "🚨 SCAM (詐欺)"
                 style = "level-danger"
 
-            # 4. UI Update
+            # UI Update
             document.getElementById("result-area").style.display = "block"
-            document.getElementById("share-area").style.display = "block"
             
             score_el = document.getElementById("d-score")
             score_el.innerText = score_disp
@@ -307,31 +377,17 @@
             document.getElementById("d-rank").innerText = rank
             document.getElementById("d-target").innerText = f"📍 {city} : {target}"
 
-            # 5. Generate Share Links
+            # Update Share Links
             hashtags = f"{city},街の歪みをさがせ"
             base_text = f"【歪み検知】\n📍 {city}「{target}」\n\n⚠️ 歪み指数: {score_disp}\n判定: {rank}\n\n#SBCM #DistortionHunter"
-            share_text_body = base_text # Save for copy
             
-            # X
             enc_text = urllib.parse.quote(base_text)
             enc_tags = urllib.parse.quote(hashtags)
             document.getElementById("link-x").href = f"https://twitter.com/intent/tweet?text={enc_text}&hashtags={enc_tags}"
             
-            # LINE
             line_text = urllib.parse.quote(f"{base_text}\n#街の歪みをさがせ")
             document.getElementById("link-line").href = f"https://line.me/R/msg/text/?{line_text}"
 
-        def copy_result(event):
-            # JS Clipboard API via PyScript
-            js.navigator.clipboard.writeText(share_text_body)
-            
-            # Show Toast
-            toast = document.getElementById("toast")
-            toast.className = "show"
-            
-            # Reset toast (simple way via python sleep not ideal in UI thread, relying on CSS anim)
-            # In a real app we'd use setTimeout via JS, but CSS anim handles the fade out here.
-
     </script>
 </body>
-</html>
+            </html>
