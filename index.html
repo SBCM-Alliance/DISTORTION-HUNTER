@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISTORTION HUNTER | 街の歪みをさがせ！</title>
+    
+    <!-- PyScript -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #050505;
+            --panel: #111;
+            --main: #00ff41;
+            --warn: #ff0055;
+            --line: #06c755;
+            --accent: #d600ff;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--main);
+            font-family: 'DotGothic16', sans-serif;
+            margin: 0;
+            padding: 15px;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            text-shadow: 2px 2px var(--warn);
+            margin: 10px 0 5px 0;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+        }
+
+        .scanner-box {
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--panel);
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+        }
+
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            border: 1px solid #444;
+            color: white;
+            font-family: inherit;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus { border-color: var(--main); box-shadow: 0 0 10px var(--main); }
+
+        .btn-scan {
+            width: 100%;
+            padding: 15px;
+            background: var(--main);
+            color: black;
+            font-family: inherit;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+        .btn-scan:active { transform: scale(0.98); }
+
+        /* Result Card (For Screenshot) */
+        #result-area {
+            display: none;
+            margin-top: 30px;
+            border: 2px solid var(--accent);
+            background: #000;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(214, 0, 255, 0.2);
+            animation: glitch-anim 0.3s;
+            position: relative;
+        }
+
+        /* 📸 Camera Icon overlay for UI hint */
+        .ss-hint {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: var(--panel);
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border: 1px solid #555;
+            border-radius: 4px;
+        }
+
+        .distortion-val {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 0 0 15px currentColor;
+            line-height: 1;
+        }
+        
+        .level-safe { color: gold; }
+        .level-warn { color: orange; }
+        .level-danger { color: var(--warn); text-shadow: 2px 2px white; }
+
+        .comment { font-size: 1.2rem; color: white; margin-bottom: 5px; }
+        .target-name { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
+
+        /* Share Hub */
+        .share-label {
+            text-align: center;
+            margin: 20px 0 10px 0;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .share-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-share {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+        .btn-share:hover { opacity: 0.8; }
+
+        .btn-x { background: #000; border: 1px solid #fff; }
+        .btn-line { background: var(--line); color: white; }
+        
+        .btn-copy { 
+            grid-column: span 2; 
+            background: #333; 
+            border: 1px solid #555;
+            color: #ccc;
+        }
+
+        @keyframes glitch-anim {
+            0% { opacity: 0; transform: translateX(-5px); }
+            50% { opacity: 1; transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 17px;
+            border: 1px solid var(--main);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body>
+
+    <h1>DISTORTION<br>HUNTER</h1>
+    <div class="subtitle">▼ ウチの街、バグってね？ ▼</div>
+
+    <div class="scanner-box">
+        <div class="input-group">
+            <label>📍 地名 (City)</label>
+            <input type="text" id="city" placeholder="例: 〇〇市">
+        </div>
+        <div class="input-group">
+            <label>🏗️ 対象 (Object)</label>
+            <input type="text" id="target" placeholder="例: 駅前の謎オブジェ">
+        </div>
+        <div class="input-group">
+            <label>💸 税金 (Budget/円)</label>
+            <input type="number" id="budget" placeholder="例: 50000000">
+        </div>
+        <div class="input-group">
+            <label>👥 利用者 (User/人)</label>
+            <input type="number" id="users" placeholder="例: 3">
+        </div>
+
+        <button class="btn-scan" py-click="scan_distortion">🔍 SCAN NOW</button>
+
+        <!-- Result Card -->
+        <div id="result-area">
+            <div class="ss-hint">📸 スクショ用</div>
+            <div style="font-size:0.8rem; color:#888;">DISTORTION LEVEL</div>
+            <div id="d-score" class="distortion-val">0.0</div>
+            <div id="d-rank" class="comment">計測中...</div>
+            <div id="d-target" class="target-name">@UNKNOWN</div>
+        </div>
+
+        <!-- Share Hub -->
+        <div id="share-area" style="display:none;">
+            <div class="share-label">▼ 結果を拡散 (Diffuse) ▼</div>
+            <div class="share-grid">
+                <!-- X (Twitter) -->
+                <a id="link-x" href="#" target="_blank" class="btn-share btn-x">𝕏 ポスト</a>
+                <!-- LINE -->
+                <a id="link-line" href="#" target="_blank" class="btn-share btn-line">LINEで送る</a>
+                <!-- Universal Copy -->
+                <button id="btn-copy" class="btn-share btn-copy" py-click="copy_result">
+                    📋 全文コピー (Insta/TikTok用)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Copied to Clipboard!</div>
+
+    <!-- Python Logic -->
+    <script type="py">
+        from pyscript import document
+        import urllib.parse
+        import js
+
+        # Global storage for result text
+        share_text_body = ""
+
+        def scan_distortion(event):
+            global share_text_body
+            
+            # 1. Inputs
+            city = document.getElementById("city").value
+            target = document.getElementById("target").value
+            budget_str = document.getElementById("budget").value
+            users_str = document.getElementById("users").value
+
+            if not city or not target or not budget_str or not users_str:
+                document.getElementById("result-area").style.display = "block"
+                document.getElementById("d-rank").innerText = "⚠️ 入力不足"
+                return
+
+            budget = float(budget_str)
+            users = float(users_str)
+            if users == 0: users = 1
+
+            # 2. Logic
+            i_cov = users / 72000
+            i_bud = budget / 30000000
+            d_index = i_bud / i_cov
+            
+            # 3. Rank
+            score_disp = f"{d_index:.1f}"
+            if d_index < 1.0:
+                rank = "✨ 神運営"
+                style = "level-safe"
+            elif d_index < 50.0:
+                rank = "⚠️ 歪み"
+                style = "level-warn"
+            else:
+                rank = "🚨 SCAM (詐欺)"
+                style = "level-danger"
+
+            # 4. UI Update
+            document.getElementById("result-area").style.display = "block"
+            document.getElementById("share-area").style.display = "block"
+            
+            score_el = document.getElementById("d-score")
+            score_el.innerText = score_disp
+            score_el.className = f"distortion-val {style}"
+            
+            document.getElementById("d-rank").innerText = rank
+            document.getElementById("d-target").innerText = f"📍 {city} : {target}"
+
+            # 5. Generate Share Links
+            hashtags = f"{city},街の歪みをさがせ"
+            base_text = f"【歪み検知】\n📍 {city}「{target}」\n\n⚠️ 歪み指数: {score_disp}\n判定: {rank}\n\n#SBCM #DistortionHunter"
+            share_text_body = base_text # Save for copy
+            
+            # X
+            enc_text = urllib.parse.quote(base_text)
+            enc_tags = urllib.parse.quote(hashtags)
+            document.getElementById("link-x").href = f"https://twitter.com/intent/tweet?text={enc_text}&hashtags={enc_tags}"
+            
+            # LINE
+            line_text = urllib.parse.quote(f"{base_text}\n#街の歪みをさがせ")
+            document.getElementById("link-line").href = f"https://line.me/R/msg/text/?{line_text}"
+
+        def copy_result(event):
+            # JS Clipboard API via PyScript
+            js.navigator.clipboard.writeText(share_text_body)
+            
+            # Show Toast
+            toast = document.getElementById("toast")
+            toast.className = "show"
+            
+            # Reset toast (simple way via python sleep not ideal in UI thread, relying on CSS anim)
+            # In a real app we'd use setTimeout via JS, but CSS anim handles the fade out here.
+
+    </script>
+</body>
+</html>
